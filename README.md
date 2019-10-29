@@ -2,14 +2,16 @@
 
 ## Description
 
-My project aims to be a three dimensional generative adversarial network (GAN) for generating voxel models, using a three dimensional [capsule network](http://papers.nips.cc/paper/6975-dynamic-routing-between-capsules). CNNs are quite good when it comes to detecting features, but they do not take spatial information into account. The following picture illustrates this: 
+My project aims to be a three dimensional generative adversarial network (GAN) for generating voxel models, using a three dimensional [capsule network](http://papers.nips.cc/paper/6975-dynamic-routing-between-capsules). CNNs are quite good when it comes to detecting features, but they do not take spatial information into account. The following picture illustrates this:
+
 ![](https://miro.medium.com/max/383/1*b5Gj44sqne2Cu6Xra5EJpg.jpeg)
+
 _Source:_ https://towardsdatascience.com/capsule-networks-the-new-deep-learning-network-bd917e6818e8
 
 This picture looks somewhat like a face, but more like an abstract painting, than an actual face. All of the features required for a face are there, but their alignment is odd, so are their relative sizes. For two dimensional settings this is not optimal, but the results of CNNs are still good enough, so it is not a problem. In three dimensional settings, this is different: spatial arrangements are more important, due to the extra dimension, especially when generating models.
 
 Capsule networks were introduced by Geoffrey Hinton, who is not pleased with the pooling operations in CNNs:
-> The pooling operation used in convolutional neural networks is a big mistake and the fact that it works so well is a disaster. [__(Source)__](https://www.reddit.com/r/MachineLearning/comments/2lmo0l/ama_geoffrey_hinton/clyj4jv/)
+> The pooling operation used in convolutional neural networks is a big mistake and the fact that it works so well is a disaster. [_(Source)_](https://www.reddit.com/r/MachineLearning/comments/2lmo0l/ama_geoffrey_hinton/clyj4jv/)
 
 They are a relatively new concept, but they have been used for [GANs](https://arxiv.org/abs/1802.06167) and for [3D data](https://arxiv.org/abs/1812.10775). To the best of my knowledge, this is the first attemt to use a GAN with a capsule network to generate a voxel model.
 
