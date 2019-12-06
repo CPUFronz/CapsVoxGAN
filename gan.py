@@ -130,8 +130,15 @@ class Discriminator(torch.nn.Module):
 
 class GAN():
     def __init__(self):
-        self.discriminator = Discriminator()
-        self.generator = Generator()
+        self.batch_size = BATCH_SIZE
+        if torch.cuda.is_available() and torch.cuda.device_count() > 1:
+            print('Using multiple GPUs')
+            self.discriminator = torch.nn.DataParallel(Discriminator())
+            self.generator = torch.nn.DataParallel(Generator())
+            self.batch_size *= torch.cuda.device_count()
+        else:
+            self.discriminator = Discriminator()
+            self.generator = Generator()
 
     def train(self, data):
         betas = (0.5, 0.5)
@@ -145,14 +152,14 @@ class GAN():
 
         for epoch in range(EPOCHS):
             for i, X in enumerate(tqdm(data)):
-                if X.size()[0] != BATCH_SIZE:
+                if X.size()[0] != self.batch_size:
                     # drop last batch due to incompatible size
                     continue
 
                 # ================== train discriminator ==================
-                Z = torch.randn(BATCH_SIZE, Z_SIZE)
-                real_labels = torch.ones(BATCH_SIZE)
-                fake_labels = torch.zeros(BATCH_SIZE)
+                Z = torch.randn(self.batch_size, Z_SIZE)
+                real_labels = torch.ones(self.batch_size)
+                fake_labels = torch.zeros(self.batch_size)
 
                 d_real = self.discriminator(X)
                 d_real_loss = criterion(d_real, real_labels)
@@ -173,7 +180,7 @@ class GAN():
                     D_solver.step()
 
                 # ================== train generator ==================
-                Z = torch.randn(BATCH_SIZE, Z_SIZE)
+                Z = torch.randn(self.batch_size, Z_SIZE)
 
                 fake = self.generator(Z)
                 d_fake = self.discriminator(fake)
@@ -194,15 +201,17 @@ class GAN():
                 generated = self.generator(Z)
                 torch.save(generated, GENERATED_PATH + 'example_after_{:04d}_iterations.pt'.format(epoch))
 
-            print('Iter: {0:5d}, D_loss: {1:.4}, G_loss: {2:.4}, D_acu: {3:.4}'.format(epoch, d_loss.item(), g_loss.item(), d_total_acu))
+            print('Epoch: {0:5d}, D_loss: {1:.4}, G_loss: {2:.4}, D_acu: {3:.4}'.format(epoch, d_loss.item(), g_loss.item(), d_total_acu))
 
+# TODO: save model!
 
 if __name__ == '__main__':
     if torch.cuda.is_available():
         torch.set_default_tensor_type('torch.cuda.FloatTensor')
 
-    dataset = VoxelData(DATASET_HDF)
-    data_loader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
-
     gan = GAN()
+
+    dataset = VoxelData(DATASET_HDF)
+    data_loader = torch.utils.data.DataLoader(dataset, batch_size=gan.batch_size, shuffle=True)
+
     gan.train(data_loader)
