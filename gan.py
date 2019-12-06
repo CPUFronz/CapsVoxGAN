@@ -196,6 +196,9 @@ class GAN():
 
             print('Iter: {0:5d}, D_loss: {1:.4}, G_loss: {2:.4}, D_acu: {3:.4}'.format(epoch, d_loss.item(), g_loss.item(), d_total_acu))
 
+        torch.save(self.discriminator, 'discriminator.pkl')
+        torch.save(self.generator, 'generator.pkl')
+
 
 if __name__ == '__main__':
     if torch.cuda.is_available():
