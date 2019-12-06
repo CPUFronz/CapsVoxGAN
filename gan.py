@@ -13,12 +13,13 @@ CUBE_SIZE = 32
 LEAK_VALUE = 0.2
 Z_SIZE = 200
 EPOCHS = 1000
-BATCH_SIZE = 400 # for 6GB VRAM
+BATCH_SIZE = 386 # 386 for 6GB VRAM
 D_LR = 0.001
 G_LR = 0.0025
 D_THRESH = 0.8
 LOG_PATH = './log/'
 GENERATED_PATH = './generated_models/'
+
 
 class VoxelData(Dataset):
     def __init__(self, path):
@@ -142,8 +143,6 @@ class GAN():
             os.mkdir(LOG_PATH)
         writer = SummaryWriter(LOG_PATH)
 
-        start_time = time.time()
-
         for epoch in range(EPOCHS):
             for i, X in enumerate(tqdm(data)):
                 if X.size()[0] != BATCH_SIZE:
@@ -195,8 +194,7 @@ class GAN():
                 generated = self.generator(Z)
                 torch.save(generated, GENERATED_PATH + 'example_after_{:04d}_iterations.pt'.format(epoch))
 
-            print('Iter: {0:5d}, D_loss: {1:.4}, G_loss: {2:.4}, D_acu: {3:.4}, took: {4:.4}s'.format(epoch, d_loss.item(), g_loss.item(), d_total_acu, time.time() - start_time))
-            start_time = time.time()
+            print('Iter: {0:5d}, D_loss: {1:.4}, G_loss: {2:.4}, D_acu: {3:.4}'.format(epoch, d_loss.item(), g_loss.item(), d_total_acu))
 
 
 if __name__ == '__main__':
