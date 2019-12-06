@@ -2,6 +2,7 @@ import os
 import time
 import torch
 import h5py
+from tqdm import tqdm
 from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import Dataset
 
@@ -144,9 +145,7 @@ class GAN():
         start_time = time.time()
 
         for epoch in range(EPOCHS):
-            for i, X in enumerate(data):
-                i_start = time.time()
-
+            for i, X in enumerate(tqdm(data)):
                 if X.size()[0] != BATCH_SIZE:
                     # drop last batch due to incompatible size
                     continue
@@ -186,9 +185,6 @@ class GAN():
                 g_loss.backward()
                 G_solver.step()
 
-                print('Epoch {:3d}, Batch {:3d}/{:3d} done, took: {:.3f}s'.format(epoch+1, i+1, len(data), time.time()-i_start))
-                i_start = time.time()
-
             # # ================== print and log progress ==================
             writer.add_scalar('Loss Discriminator', d_loss.item(), epoch)
             writer.add_scalar('Loss Generator', g_loss.item(), epoch)
@@ -197,7 +193,7 @@ class GAN():
             if (epoch % 10) == 0:
                 Z = torch.randn(BATCH_SIZE, Z_SIZE)
                 generated = self.generator(Z)
-                torch.save(generated, GENERATED_PATH + 'example_after_{:4d}_iterations.pt'.format(epoch))
+                torch.save(generated, GENERATED_PATH + 'example_after_{:04d}_iterations.pt'.format(epoch))
 
             print('Iter: {0:5d}, D_loss: {1:.4}, G_loss: {2:.4}, D_acu: {3:.4}, took: {4:.4}s'.format(epoch, d_loss.item(), g_loss.item(), d_total_acu, time.time() - start_time))
             start_time = time.time()
