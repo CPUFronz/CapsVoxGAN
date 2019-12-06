@@ -1,18 +1,3 @@
-"""
-use_cuda = torch.cuda.is_available()
-FloatTensor = torch.cuda.FloatTensor if use_cuda else torch.FloatTensor
-LongTensor = torch.cuda.LongTensor if use_cuda else torch.LongTensor
-Tensor = FloatTensor
-
-if use_cuda:
-    lgr.info ("Using the GPU")
-    X = Variable(torch.from_numpy(x_data_np).cuda()) # Note the conversion for pytorch
-    Y = Variable(torch.from_numpy(y_data_np).cuda())
-else:
-    lgr.info ("Using the CPU")
-    X = Variable(torch.from_numpy(x_data_np)) # Note the conversion for pytorch
-    Y = Variable(torch.from_numpy(y_data_np))
-"""
 import os
 import time
 import torch
@@ -27,7 +12,7 @@ CUBE_SIZE = 32
 LEAK_VALUE = 0.2
 Z_SIZE = 200
 EPOCHS = 1000
-BATCH_SIZE = 128 # for Laptop
+BATCH_SIZE = 400 # for 6GB VRAM
 D_LR = 0.001
 G_LR = 0.0025
 D_THRESH = 0.8
@@ -160,6 +145,8 @@ class GAN():
 
         for epoch in range(EPOCHS):
             for i, X in enumerate(data):
+                i_start = time.time()
+
                 if X.size()[0] != BATCH_SIZE:
                     # drop last batch due to incompatible size
                     continue
@@ -198,6 +185,9 @@ class GAN():
                 self.generator.zero_grad()
                 g_loss.backward()
                 G_solver.step()
+
+                print('Epoch {:3d}, Batch {:3d}/{:3d} done, took: {:.3f}s'.format(epoch+1, i+1, len(data), time.time()-i_start))
+                i_start = time.time()
 
             # # ================== print and log progress ==================
             writer.add_scalar('Loss Discriminator', d_loss.item(), epoch)
