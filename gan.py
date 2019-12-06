@@ -18,6 +18,7 @@ import time
 import torch
 import h5py
 from torch.utils.tensorboard import SummaryWriter
+from torch.utils.data import Dataset
 
 from create_dataset import DATASET_HDF
 
@@ -33,7 +34,7 @@ D_THRESH = 0.8
 LOG_PATH = './log/'
 GENERATED_PATH = './generated_models/'
 
-class VoxelData(torch.utils.data.Dataset):
+class VoxelData(Dataset):
     def __init__(self, path):
         self.path = path
         self.index = self._create_index()
