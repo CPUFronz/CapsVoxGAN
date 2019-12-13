@@ -12,8 +12,8 @@ LATENT_SIZE = 200
 CUBE_SIZE = 32
 LEAK_VALUE = 0.2
 Z_SIZE = 200
-EPOCHS = 1000
-BATCH_SIZE = 386 # 386 for 6GB VRAM
+EPOCHS = 500
+BATCH_SIZE = 350 # 386 for 6GB VRAM
 D_LR = 0.001
 G_LR = 0.0025
 D_THRESH = 0.8
@@ -22,9 +22,11 @@ GENERATED_PATH = './generated_models/'
 
 
 class VoxelData(Dataset):
-    def __init__(self, path):
+    def __init__(self, path, models=None):
         self.path = path
+        self.models = models
         self.index = self._create_index()
+        print('Using {} training examples'.format(len(self.index)))
 
     def __getitem__(self, index):
         idx_c, idx_d = self.index[index]
@@ -35,8 +37,12 @@ class VoxelData(Dataset):
     def _create_index(self):
         with h5py.File(self.path) as hdf:
             pairs = []
-            categories = list(hdf.keys())
-            for c in categories:
+            if self.models:
+                categories = self.models
+            else:
+                categories = list(hdf.keys())
+
+            for c in categories:                
                 datasets = list(hdf[c].keys())
                 for d in datasets:
                     pairs.append((c, d))
@@ -204,7 +210,7 @@ if __name__ == '__main__':
     if torch.cuda.is_available():
         torch.set_default_tensor_type('torch.cuda.FloatTensor')
 
-    dataset = VoxelData(DATASET_HDF)
+    dataset = VoxelData(DATASET_HDF, ['wardrobe'])
     data_loader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
     gan = GAN()
