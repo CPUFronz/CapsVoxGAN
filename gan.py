@@ -1,62 +1,31 @@
 import os
-import time
 import torch
-import h5py
 from tqdm import tqdm
 from torch.utils.tensorboard import SummaryWriter
-from torch.utils.data import Dataset
 
-from create_dataset import DATASET_HDF
+from voxeldata import VoxelData
+from constants import DATASET_HDF
+from constants import LATENT_SIZE
+from constants import CUBE_SIZE
+from constants import LEAK_VALUE
+from constants import Z_SIZE
+from constants import EPOCHS
+from constants import BATCH_SIZE
+from constants import D_LR
+from constants import G_LR
+from constants import D_THRESH
+from constants import LOG_PATH
+from constants import GENERATED_PATH
+from constants import CLASSES
+from constants import RANDOM_SEED
 
-LATENT_SIZE = 200
-CUBE_SIZE = 32
-LEAK_VALUE = 0.2
-Z_SIZE = 200
-EPOCHS = 500
-BATCH_SIZE = 350 # 386 for 6GB VRAM
-D_LR = 0.001
-G_LR = 0.0025
-D_THRESH = 0.8
-LOG_PATH = './log/'
-GENERATED_PATH = './generated_models/'
-
-
-class VoxelData(Dataset):
-    def __init__(self, path, models=None):
-        self.path = path
-        self.models = models
-        self.index = self._create_index()
-        print('Using {} training examples'.format(len(self.index)))
-
-    def __getitem__(self, index):
-        idx_c, idx_d = self.index[index]
-        with h5py.File(self.path) as hdf:
-            tensor = torch.Tensor(hdf[idx_c][idx_d])
-        return tensor
-
-    def _create_index(self):
-        with h5py.File(self.path) as hdf:
-            pairs = []
-            if self.models:
-                categories = self.models
-            else:
-                categories = list(hdf.keys())
-
-            for c in categories:                
-                datasets = list(hdf[c].keys())
-                for d in datasets:
-                    pairs.append((c, d))
-        return pairs
-
-    def __len__(self):
-        return len(self.index)
-
+torch.manual_seed(RANDOM_SEED)
 
 class Generator(torch.nn.Module):
-    def __init__(self, latent_size=LATENT_SIZE, z_size=Z_SIZE):
+    def __init__(self, cube_size=CUBE_SIZE, latent_size=LATENT_SIZE, z_size=Z_SIZE):
         super(Generator, self).__init__()
-        self.cube_len = CUBE_SIZE
-        self.z_size = Z_SIZE
+        self.cube_len = cube_size
+        self.z_size = z_size
 
         self.layer1 = torch.nn.Sequential(
             torch.nn.ConvTranspose3d(latent_size, self.cube_len * 8, kernel_size=4, stride=2, padding=(1, 1, 1)),
@@ -94,10 +63,10 @@ class Generator(torch.nn.Module):
 
 
 class Discriminator(torch.nn.Module):
-    def __init__(self):
+    def __init__(self, cube_size=CUBE_SIZE, leak_value=LEAK_VALUE):
         super(Discriminator, self).__init__()
-        self.cube_len = CUBE_SIZE
-        self.leak_value = LEAK_VALUE
+        self.cube_len = cube_size
+        self.leak_value = leak_value
 
         self.layer1 = torch.nn.Sequential(
             torch.nn.Conv3d(1, self.cube_len, kernel_size=4, stride=2, padding=(1, 1, 1)),
@@ -141,8 +110,8 @@ class GAN():
 
     def train(self, data):
         betas = (0.5, 0.5)
-        D_solver = torch.optim.Adam(self.discriminator.parameters(), lr=D_LR, betas=betas)
-        G_solver = torch.optim.Adam(self.generator.parameters(), lr=G_LR, betas=betas)
+        d_optim = torch.optim.Adam(self.discriminator.parameters(), lr=D_LR, betas=betas)
+        g_optim = torch.optim.Adam(self.generator.parameters(), lr=G_LR, betas=betas)
         criterion = torch.nn.BCELoss()
 
         if not os.path.exists(LOG_PATH):
@@ -176,7 +145,7 @@ class GAN():
                 if d_total_acu <= D_THRESH:
                     self.discriminator.zero_grad()
                     d_loss.backward()
-                    D_solver.step()
+                    d_optim.step()
 
                 # ================== train generator ==================
                 Z = torch.randn(BATCH_SIZE, Z_SIZE)
@@ -188,7 +157,7 @@ class GAN():
                 self.discriminator.zero_grad()
                 self.generator.zero_grad()
                 g_loss.backward()
-                G_solver.step()
+                g_optim.step()
 
             # # ================== print and log progress ==================
             writer.add_scalar('Loss Discriminator', d_loss.item(), epoch)
@@ -210,7 +179,7 @@ if __name__ == '__main__':
     if torch.cuda.is_available():
         torch.set_default_tensor_type('torch.cuda.FloatTensor')
 
-    dataset = VoxelData(DATASET_HDF, ['wardrobe'])
+    dataset = VoxelData(DATASET_HDF, CLASSES)
     data_loader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
     gan = GAN()
