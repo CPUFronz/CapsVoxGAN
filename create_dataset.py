@@ -6,11 +6,10 @@ import scipy.io
 import h5py
 import numpy as np
 
-DATASET_URL = 'http://3dshapenets.cs.princeton.edu/3DShapeNetsCode.zip'
-DATA_PATH = './data/'
-DATASET_FN = DATA_PATH + DATASET_URL.split('/')[-1]
-DATASET_HDF = DATA_PATH + 'voxel_models.h5'
-
+from constants import DATASET_FN
+from constants import DATASET_URL
+from constants import DATASET_HDF
+from constants import DATA_PATH
 
 def download_dataset():
     file_name = DATASET_FN
