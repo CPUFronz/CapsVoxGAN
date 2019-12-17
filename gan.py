@@ -5,7 +5,6 @@ from torch.utils.tensorboard import SummaryWriter
 
 from voxeldata import VoxelData
 from constants import DATASET_HDF
-from constants import LATENT_SIZE
 from constants import CUBE_SIZE
 from constants import LEAK_VALUE
 from constants import Z_SIZE
@@ -22,13 +21,13 @@ from constants import RANDOM_SEED
 torch.manual_seed(RANDOM_SEED)
 
 class Generator(torch.nn.Module):
-    def __init__(self, cube_size=CUBE_SIZE, latent_size=LATENT_SIZE, z_size=Z_SIZE):
+    def __init__(self, cube_size=CUBE_SIZE, z_size=Z_SIZE):
         super(Generator, self).__init__()
         self.cube_len = cube_size
         self.z_size = z_size
 
         self.layer1 = torch.nn.Sequential(
-            torch.nn.ConvTranspose3d(latent_size, self.cube_len * 8, kernel_size=4, stride=2, padding=(1, 1, 1)),
+            torch.nn.ConvTranspose3d(self.z_size, self.cube_len * 8, kernel_size=4, stride=2, padding=(1, 1, 1)),
             torch.nn.BatchNorm3d(self.cube_len*8),
             torch.nn.ReLU()
         )
