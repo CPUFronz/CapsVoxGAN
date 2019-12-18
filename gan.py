@@ -12,7 +12,7 @@ from constants import EPOCHS
 from constants import BATCH_SIZE
 from constants import DISCRIMINATOR_LEARNING_RATE
 from constants import GENERATOR_LEARNING_RATE
-from constants import D_THRESH
+from constants import DISCRIMINATOR_THRESHOLD
 from constants import LOG_PATH
 from constants import GENERATED_PATH
 from constants import CLASSES
@@ -148,9 +148,9 @@ class GAN:
 
                 discriminator_accuracy_real = torch.ge(discriminator_real_prediction.squeeze(), 0.5).float()
                 discriminator_accuracy_fake = torch.le(discriminator_fake_prediction.squeeze(), 0.5).float()
-                discriminator_accuracy = torch.mean(torch.cat((discriminator_accuracy_real, discriminator_accuracy_fake),0))
+                discriminator_accuracy = torch.mean(torch.cat((discriminator_accuracy_real, discriminator_accuracy_fake), 0))
 
-                if discriminator_accuracy <= D_THRESH:
+                if discriminator_accuracy <= DISCRIMINATOR_THRESHOLD:
                     self.discriminator.zero_grad()
                     discriminator_loss.backward()
                     discriminator_optimizer.step()

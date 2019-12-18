@@ -11,6 +11,7 @@ from constants import DATASET_URL
 from constants import DATASET_HDF
 from constants import DATA_PATH
 
+
 def download_dataset():
     file_name = DATASET_FN
     u = urllib.request.urlopen(DATASET_URL)
