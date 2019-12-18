@@ -50,7 +50,7 @@ class LatentCapsLayer(torch.nn.Module):
         u_hat = torch.squeeze(torch.matmul(self.W, x[:, None, :, :, None]), dim=-1)
         u_hat_detached = u_hat.detach()
 
-        b_ij = torch.autograd.Variable(torch.zeros(x.size(0), self.latent_caps_size, self.prim_caps_size)).cuda()
+        b_ij = torch.autograd.Variable(torch.zeros(x.size(0), self.latent_caps_size, self.prim_caps_size))
         num_iterations = 3
         for iteration in range(num_iterations):
             c_ij = F.softmax(b_ij, 1)
