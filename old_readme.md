@@ -19,7 +19,7 @@ They are a relatively new concept, but they have been used for [GANs](https://ar
 
 ## Dataset
 
-Machine learninging with 3D objects or scenes is a relatively new area, therefore there there is not as much annotated data available as for image recognition. Luckily in recent years this started to change, [here](https://github.com/timzhang642/3D-Machine-Learning#datasets) you can find a good overview of available datasets. 
+Machine learning with 3D objects or scenes is a relatively new area, therefore there is not as much annotated data available as for image recognition. Luckily in recent years this started to change, [here](https://github.com/timzhang642/3D-Machine-Learning#datasets) you can find a good overview of available datasets. 
 
 The dataset of my choice is [ModelNet40](http://modelnet.cs.princeton.edu), it consits of 12311 models from 40 categories. The models are polygon meshes and therefore I have to convert them into voxel models first. I'll do this using [PyMesh](https://github.com/PyMesh/PyMesh), alternatively I could use [binvox](https://www.patrickmin.com/binvox/) together with [Gmsh](http://gmsh.info/). I was thinking of setting the grid of voxels to 64x64x64, as a compromise between computational effort and quality of the results, but this might be subject to change.
 
