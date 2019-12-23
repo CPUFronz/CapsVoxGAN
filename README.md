@@ -36,6 +36,8 @@ However, since I do need something to show, I trained a GAN, with regular three-
 * chair
 * laptop
 
+All generated models can be found at: https://cloud.tugraz.at/index.php/s/F8L9BwiXznP3FrL
+
 Here are a few examples of the generated models:
 
 ##### After 0 epochs:
@@ -55,6 +57,24 @@ After 40 epochs the output resembles like a chair, but it is missing some import
 After 100 more epochs, the generator generates something, that looks like a mixture between chair and table.
 
 ![](plots/epoch0140.png)
+
+##### After 220 epochs:
+
+This example looks like the upper part of a chair.
+
+![](plots/epoch0220.png)
+
+##### After 350 epochs:
+
+After 350 epochs the generator is again generating chairs, this one is overall one of the best generated models. 
+
+![](plots/epoch0350.png)
+
+##### After 490 epochs:
+
+The generated model after many more epochs looks again like a chair, but this one has some quirks to it.
+
+![](plots/epoch0490.png)
   
 
 ## Error Metric
