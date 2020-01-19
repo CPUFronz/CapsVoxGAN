@@ -1,46 +1,49 @@
+#!/usr/bin/python3
+import sys
 import time
 import uuid
 from tempfile import TemporaryDirectory
 
 import torch
-import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-
-from kivy.app import App
-from kivy.uix.image import Image
-from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.button import Button
-from kivy.config import Config
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QApplication
 
 from gan import Generator
 from constants import Z_SIZE
 from constants import SAVED_GENERATOR
 
-Config.set('graphics', 'window_state', 'maximized')
 torch.manual_seed(int(time.time()))
 
 
-class Window(FloatLayout):
-    def __init__(self, **kwargs):
-        super(Window, self).__init__(**kwargs)
+class App(QtWidgets.QMainWindow):
+    def __init__(self):
+        super(App, self).__init__()
+        self.resize(720, 700)
+        self.setWindowTitle('CapsVoxGAN')
+        self.setWindowFlags(QtCore.Qt.WindowCloseButtonHint | QtCore.Qt.WindowMinimizeButtonHint)
 
         self.model = torch.load(SAVED_GENERATOR, map_location='cpu')
         self.plots_directory = TemporaryDirectory()
 
-        img = self.generate_image()
-        self.current_image = Image(source=img)
-        self.add_widget(self.current_image)
+        self.central_widget = QtWidgets.QWidget(self)
 
-        self.submit = Button(text="Generate Image", size_hint=(.25/1.5, .125/2), pos=(20, 20))
-        self.submit.bind(on_press=self.pressed)
-        self.add_widget(self.submit)
+        self.label = QtWidgets.QLabel(self.central_widget)
+        self.label.setGeometry(QtCore.QRect(10, 10, 700, 700))
+        self.label.setScaledContents(True)
+        self.label.setPixmap(QtGui.QPixmap(self.generate_image()))
 
-    def pressed(self, instance):
-        import time
-        print('button', time.time())
+        self.button = QtWidgets.QPushButton(self.central_widget)
+        self.button.setGeometry(QtCore.QRect(320, 630, 120, 25))
+        self.button.setText('Generate Image')
+        self.button.clicked.connect(self.on_click)
+
+        self.setCentralWidget(self.central_widget)
+
+    def on_click(self):
         image = self.generate_image()
-        self.current_image.source = image
+        self.label.setPixmap(QtGui.QPixmap(image))
 
     def generate_image(self, threshold=1.0):
         filename = self.plots_directory.name + '/' + str(uuid.uuid1()) + '.png'
@@ -56,10 +59,8 @@ class Window(FloatLayout):
         return filename
 
 
-class Main(App):
-    def build(self):
-        return Window()
-
-
 if __name__ == '__main__':
-    Main().run()
+    qt_app = QApplication(sys.argv)
+    CapsVoxGAN = App()
+    CapsVoxGAN.show()
+    sys.exit(qt_app.exec_())
