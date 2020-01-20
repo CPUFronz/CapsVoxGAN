@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-APP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-source $APP_DIR/usr/bin/activate
+# get actual directory
+export RUN_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+source $RUN_DIR/usr/bin/activate
 
-python $APP_DIR/usr/opt/CapsVoxGAN/gui_app.py
+python $RUN_DIR/usr/opt/CapsVoxGAN/gui_app.py
+
