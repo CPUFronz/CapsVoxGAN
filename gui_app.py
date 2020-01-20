@@ -1,4 +1,5 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
+
 import os
 import sys
 import time
@@ -15,12 +16,12 @@ from gan import Generator
 from constants import Z_SIZE
 from constants import SAVED_GENERATOR
 
+torch.manual_seed(int(time.time()))
+
+# use absolute path of model
 PREFIX = os.path.dirname(os.path.realpath(__file__)) + '/'
 SAVED_GENERATOR = PREFIX + SAVED_GENERATOR
 
-print(SAVED_GENERATOR)
-
-torch.manual_seed(int(time.time()))
 
 class App(QtWidgets.QMainWindow):
     def __init__(self):
