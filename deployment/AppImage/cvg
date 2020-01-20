@@ -4,5 +4,5 @@
 export RUN_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source $RUN_DIR/usr/bin/activate
 
-python $RUN_DIR/usr/opt/CapsVoxGAN/gui_app.py
+python $RUN_DIR/usr/opt/CapsVoxGAN/app_gui.py
 

@@ -27,7 +27,7 @@ export CONDA_PACKAGES="pyqt==5.9.2;matplotlib==3.1.1;pytorch-cpu==1.1.0;torchvis
 APP_DIR=AppDir/usr/opt/CapsVoxGAN
 mkdir -p $APP_DIR
 cp ../../gan.py $APP_DIR/gan.py
-cp ../../gui_app.py $APP_DIR/gui_app.py
+cp ../../app_gui.py $APP_DIR/app_gui.py
 cp ../../voxeldata.py $APP_DIR/voxeldata.py
 cp ../../constants.py $APP_DIR/constants.py
 cp ../../generator.pkl $APP_DIR/generator.pkl
