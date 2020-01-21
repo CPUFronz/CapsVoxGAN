@@ -33,13 +33,8 @@ HTML = """
 
 @app.route('/plot.png')
 def generate_image(threshold=1.0):
-    # convert full saved model to state_dict for inference
-#    tmp_folder = TemporaryDirectory()
-#    model = torch.load(SAVED_GENERATOR, map_location='cpu')
-#    model_folder = tmp_folder.name + '/' + SAVED_GENERATOR
-#    torch.save(model.state_dict(), model_folder)
     model = Generator()
-    model.load_state_dict(torch.load('state_dict.pkl', map_location='cpu'))
+    model.load_state_dict(torch.load(SAVED_GENERATOR + '_state_dict', map_location='cpu'))
     
     noise = torch.randn(1, Z_SIZE)
     with torch.no_grad():
@@ -53,11 +48,12 @@ def generate_image(threshold=1.0):
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')
 
+
 @app.route('/')
 def show_index():
     full_filename = generate_image()
     return HTML
 
-if __name__ == '__main__':
-    generate_image()
 
+if __name__ == '__main__':
+    app.run(host='0.0.0.0')
