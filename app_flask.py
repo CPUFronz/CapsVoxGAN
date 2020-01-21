@@ -1,12 +1,13 @@
 import os
+import io
 import time
 import uuid
-from tempfile import TemporaryDirectory
 
 import torch
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from flask import Flask, render_template
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from flask import Flask, Response
 
 from gan import Generator
 from constants import Z_SIZE
@@ -14,28 +15,49 @@ from constants import SAVED_GENERATOR
 
 torch.manual_seed(int(time.time()))
 
-PLOTS_FOLDER = TemporaryDirectory()
-app = Flask(__name__, static_url_path='', static_folder=PLOTS_FOLDER.name, template_folder='deployment/Flask')
-app.config['UPLOAD_FOLDER'] = ''
+app = Flask(__name__)
+HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+    </style>
+    <title>CapsVoxGAN</title>
+</head>
+<body>
+        <img style="max-width:100%;max-height:100vh;margin:-75px;" src="/plot.png" alt="Generated Voxel Model">
+        <button style="margin:-35%;" onclick="location.reload()">Generate Image</button>
+</body>
+</html>
+"""
 
 
+@app.route('/plot.png')
 def generate_image(threshold=1.0):
-    model = torch.load(SAVED_GENERATOR, map_location='cpu')
-
-    filename = PLOTS_FOLDER.name + '/' + str(uuid.uuid1()) + '.png'
-
+    # convert full saved model to state_dict for inference
+#    tmp_folder = TemporaryDirectory()
+#    model = torch.load(SAVED_GENERATOR, map_location='cpu')
+#    model_folder = tmp_folder.name + '/' + SAVED_GENERATOR
+#    torch.save(model.state_dict(), model_folder)
+    model = Generator()
+    model.load_state_dict(torch.load('state_dict.pkl', map_location='cpu'))
+    
     noise = torch.randn(1, Z_SIZE)
-    generated_model = model(noise).squeeze().detach().numpy()
+    with torch.no_grad():
+        generated_model = model(noise).squeeze().numpy()
 
     fig = plt.figure(figsize=(10, 10))
     ax = fig.gca(projection='3d')
     ax.voxels(generated_model >= threshold, facecolor='blue', edgecolor='k')
-    plt.savefig(filename, format='png')
 
-    return filename
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype='image/png')
 
 @app.route('/')
-@app.route('/index')
 def show_index():
-    full_filename = generate_image(threshold=0.9)
-    return render_template("index.html", user_image = full_filename)
+    full_filename = generate_image()
+    return HTML
+
+if __name__ == '__main__':
+    generate_image()
+

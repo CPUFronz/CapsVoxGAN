@@ -52,17 +52,19 @@ class App(QtWidgets.QMainWindow):
         self.label.setPixmap(QtGui.QPixmap(image))
 
     def generate_image(self, threshold=1.0):
-        filename = self.plots_directory.name + '/' + str(uuid.uuid1()) + '.png'
+        plot = self.plots_directory.name + '/' + str(uuid.uuid1()) + '.png'
 
         noise = torch.randn(1, Z_SIZE)
-        generated_model = self.model(noise).squeeze().detach().numpy()
+        with torch.no_grad():
+            generated_model = self.model(noise).squeeze().numpy()
 
         fig = plt.figure(figsize=(10,10))
         ax = fig.gca(projection='3d')
         ax.voxels(generated_model >= threshold, facecolor='blue', edgecolor='k')
-        plt.savefig(filename, format='png')
-
-        return filename
+        plt.savefig(plot, format='png')
+        plt.close()
+    
+        return plot
 
 
 if __name__ == '__main__':
