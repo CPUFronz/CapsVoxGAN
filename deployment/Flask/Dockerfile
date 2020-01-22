@@ -1,7 +1,6 @@
 FROM pytorch/pytorch:1.1.0-cuda10.0-cudnn7.5-runtime
 WORKDIR /opt/CapsVoxGAN
 ADD deployment/Flask/convert_model.py .
-ADD deployment/Flask/start.sh .
 ADD gan.py .
 ADD app_flask.py .
 ADD voxeldata.py .
