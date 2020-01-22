@@ -2,23 +2,40 @@
 
 ## Introduction
 
-My project aimed to be a three dimensional generative adversarial network (GAN) for generating voxel models, using a three dimensional [capsule network](http://papers.nips.cc/paper/6975-dynamic-routing-between-capsules).
+My project aimed to be a three-dimensional generative adversarial network (GAN) for generating voxel models, using a three-dimensional [capsule network](http://papers.nips.cc/paper/6975-dynamic-routing-between-capsules).
 
 ### Setup
 In order to make my development environment portable, I used [Miniconda](https://docs.conda.io/en/latest/miniconda.html). Just download and install it, then use [environment.yml](environment.yml) to replicate my environment: ```conda env create --file environment.yml```
 
-Once the environment is set-up, a dataset for training has to be created: just run ```python create_dataset.py```, it will download the dataset and convert it from the MATLAB file format into NumPy and saves it as one compressed [HDF5](https://www.hdfgroup.org/solutions/hdf5/) file.
+Once the environment is set up, a dataset for training has to be created: just run ```python create_dataset.py```, it will download the dataset and convert it from the MATLAB file format into NumPy and saves it as one compressed [HDF5](https://www.hdfgroup.org/solutions/hdf5/) file.
 
 ### Usage
+
+It is highly recommended, that you download the version from release, because the learned weights are included there. Otherwise, you have to train the network yourself (which is rather time-consuming).
+
+#### Testing
+There are two different front-ends: a desktop application and a web service based on [Flask](https://github.com/pallets/flask).
+
+*You need to have ```generator.pkl``` (the weights for the generator) in the root directory of the repository for the both of these methods to work.*
+
+For the desktop application simply lunch ```python app_gui.py``` after setting up the Miniconda environment as discribed above. I originally intended to ship this desktop app as [AppImage](https://appimage.org/) using https://github.com/linuxdeploy/linuxdeploy-plugin-conda. But that didn't work, the file ```create_appimage.sh``` is a left over from that failed attempt: it creates an AppImage, but still needs a locally installed Conda environment with all required dependencies installed.
+
+The easiest way is just to run ```python app_flask.py``` after the Miniconda environment is installed. Alternatively you can build the Docker iamge and lunch the Docker container by executing ```create_docker.sh```. To access it in both cases, simply call [localhost:5000](http://localhost:5000) in your browser. 
+
+#### Training
 Once the setup is done, just run ```python gan.py``` to start training the GAN.
 
 To see the trained models, run ```jupyter notebook visualise.ipynb```. It uses [Matplotlib](https://matplotlib.org/) and [Plotly](https://plot.ly/) to display training and generated voxel models. 
 
 ### Files
 
+* [app_flask.py](app_flask.py): web application for generating and displaying voxel models
+* [app_gui.py](app_gui.py): desktop application for generating and displaying voxel models
 * [capsule.py](capsule.py): implementation of the capsule network (doesn't work unfortunately)
 * [constants.py](constants.py): definition of used constants
+* [create_appimage.sh](create_appimage.sh): builds an AppImage file
 * [create_dataset.py](create_dataset.py): downloads the dataset and converts it into a single HDF5 file
+* [create_docker.sh](create_docker.sh): builds and launches a Docker container for the Flask web application
 * [environment.yaml](environment.yml): Miniconda evironment 
 * [gan.py](gan.py): the main file 
 * [old_readme.md](old_readme.md): former README.md, laying down the vision for this project
