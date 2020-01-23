@@ -1,7 +1,6 @@
 import os
 import io
 import time
-import uuid
 
 import torch
 import matplotlib.pyplot as plt
@@ -56,4 +55,9 @@ def show_index():
 
 
 if __name__ == '__main__':
+    if not os.path.exists(SAVED_GENERATOR + '__state_dict'):
+        # convert to state_dict of the model, it it does not exist already
+        model = torch.load(SAVED_GENERATOR, map_location='cpu')
+        torch.save(model.state_dict(), SAVED_GENERATOR + '_state_dict')
+
     app.run(host='0.0.0.0')
